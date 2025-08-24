@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Search, Heart, ShoppingCart, User, Phone, Menu, X } from "lucide-react";
+import { useCartStore, useAuthStore, useSearchStore } from "../src/store/store";
 
 export default function Header() {
-  const [search, setSearch] = useState("");
+  const { searchQuery, setSearchQuery } = useSearchStore();
+  const { getTotalItems } = useCartStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -45,17 +49,16 @@ export default function Header() {
     return (
       <header className="w-full bg-white shadow-md">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-          <div className="flex items-center text-gray-700 gap-2 text-sm">
-            <Phone size={16} />
-            <span className="hidden sm:inline">+1-234-567-890</span>
+          <div className="flex items-center">
+            <Link to="/">
+              <img
+                src="/images/SJD_logo.png"
+                alt="Logo"
+                className="h-8 sm:h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
           </div>
-          <div className="flex-1 flex justify-center">
-            <img
-              src="/images/SJD_logo.png"
-              alt="Logo"
-              className="h-10 sm:h-14 w-auto object-contain"
-            />
-          </div>
+          <div className="flex-1"></div>
           <div className="w-16"></div>
         </div>
       </header>
@@ -66,68 +69,82 @@ export default function Header() {
     <>
       <header className="w-full bg-white shadow-md relative z-40">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
-          {/* Center - Logo */}
-          <div className="flex-1 flex justify-center">
-            <img
-              src="images/SJD_logo.png"
-              alt="SJD Jewelry Wholesale Logo"
-              className="h-10 sm:h-14 w-auto object-contain"
-            />
+          {/* Left - Logo */}
+          <div className="flex items-center">
+            <Link to="/">
+              <img
+                src="images/SJD_logo.png"
+                alt="SJD Jewelry Wholesale Logo"
+                className="h-8 sm:h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
           </div>
 
-          {/* Right - Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-6">
+          {/* Center - Search Bar */}
+          <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
             {/* Search Bar */}
-            <div className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault()
+                if (searchQuery.trim()) {
+                  window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`
+                }
+              }}
+              className="flex items-center border rounded-lg px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
               <Search size={18} className="text-gray-500" />
               <input
                 type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search jewelry..."
                 className="outline-none bg-transparent px-2 py-1 w-56 text-sm"
                 suppressHydrationWarning
               />
-            </div>
+            </form>
 
             {/* Navigation Links */}
-            <nav className="flex items-center gap-5 text-gray-700 text-sm font-medium">
-              <a 
-                href="/contact" 
-                className="hover:text-blue-600 transition-colors duration-200"
-              >
-                Contact
-              </a>
-              <a 
-                href="/wishlist" 
+            <nav className="flex items-center gap-5 text-gray-700 text-sm font-medium ml-6">
+              <Link 
+                to="/wishlist" 
                 className="hover:text-blue-600 flex items-center gap-1 transition-colors duration-200"
               >
                 <Heart size={16} />
                 <span>Wishlist</span>
-              </a>
-              <a 
-                href="/Cart" 
+              </Link>
+              <Link 
+                to="/cart" 
                 className="hover:text-blue-600 flex items-center gap-1 transition-colors duration-200 relative"
               >
                 <ShoppingCart size={16} />
                 <span>Cart</span>
-                {/* Cart badge - you can make this dynamic */}
+                {/* Cart badge */}
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  1
+                  {getTotalItems()}
                 </span>
-              </a>
-              <a 
-                href="/account" 
-                className="hover:text-blue-600 flex items-center gap-1 transition-colors duration-200"
-              >
-                <User size={16} />
-                <span>Account</span>
-              </a>
+              </Link>
+              {isAuthenticated ? (
+                <Link 
+                  to="/account" 
+                  className="hover:text-blue-600 flex items-center gap-1 transition-colors duration-200"
+                >
+                  <User size={16} />
+                  <span>Account</span>
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="hover:text-blue-600 flex items-center gap-1 transition-colors duration-200"
+                >
+                  <User size={16} />
+                  <span>Login</span>
+                </Link>
+              )}
             </nav>
           </div>
 
           {/* Right - Mobile Menu Button */}
-          <div className="lg:hidden">
+          <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-gray-700 hover:text-blue-600 transition-colors"
@@ -141,17 +158,25 @@ export default function Header() {
 
         {/* Mobile Search Bar - Below Header */}
         <div className="lg:hidden border-t border-gray-200 px-4 py-3 bg-gray-50">
-          <div className="flex items-center border rounded-lg px-3 py-2 bg-white">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (searchQuery.trim()) {
+                window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`
+              }
+            }}
+            className="flex items-center border rounded-lg px-3 py-2 bg-white"
+          >
             <Search size={18} className="text-gray-500" />
             <input
               type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search jewelry..."
               className="outline-none bg-transparent px-2 py-1 flex-1 text-sm"
               suppressHydrationWarning
             />
-          </div>
+          </form>
         </div>
       </header>
 
@@ -180,46 +205,49 @@ export default function Header() {
 
             {/* Menu Content */}
             <nav className="p-4 space-y-1">
-              <a 
-                href="/contact" 
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Phone size={20} />
-                <span className="font-medium">Contact</span>
-              </a>
               
-              <a 
-                href="/wishlist" 
+              <Link 
+                to="/wishlist" 
                 className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Heart size={20} />
                 <span className="font-medium">Wishlist</span>
-              </a>
+              </Link>
               
-              <a 
-                href="/cart" 
+              <Link 
+                to="/cart" 
                 className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors relative"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <div className="relative">
                   <ShoppingCart size={20} />
                   <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
+                    {getTotalItems()}
                   </span>
                 </div>
                 <span className="font-medium">Shopping Cart</span>
-              </a>
+              </Link>
               
-              <a 
-                href="/account" 
-                className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <User size={20} />
-                <span className="font-medium">My Account</span>
-              </a>
+              {isAuthenticated ? (
+                <Link 
+                  to="/account" 
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={20} />
+                  <span className="font-medium">My Account</span>
+                </Link>
+              ) : (
+                <Link 
+                  to="/login" 
+                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <User size={20} />
+                  <span className="font-medium">Login</span>
+                </Link>
+              )}
 
               {/* Divider */}
               <div className="border-t border-gray-200 my-4"></div>

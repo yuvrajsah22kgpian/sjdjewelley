@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,11 +8,8 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-
-// Minimal classnames utility
-function classNames(...classes: (string | undefined | null | false)[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { useCartStore } from "../src/store/store";
+import { cn } from "../src/utils/cn";
 
 // Accessible, stylish icon button
 interface IconButtonProps {
@@ -34,7 +32,7 @@ const IconButton: React.FC<IconButtonProps> = ({
     disabled={disabled}
     onClick={onClick}
     tabIndex={0}
-    className={classNames(
+    className={cn(
       "inline-flex items-center justify-center rounded-md",
       "transition-all focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2",
       "disabled:opacity-40 disabled:pointer-events-none",
@@ -55,7 +53,7 @@ const DiscountBadge: React.FC<DiscountBadgeProps> = ({
   className = "",
 }) => (
   <span
-    className={classNames(
+    className={cn(
       "inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-bold",
       "bg-red-500 text-white shadow-sm",
       className
@@ -94,9 +92,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
+  const { addItem } = useCartStore();
+
   return (
     <div
-      className={classNames(
+      className={cn(
         "bg-white rounded-2xl shadow-lg border border-gray-200",
         "hover:shadow-xl transition-all duration-300 overflow-hidden relative",
         "group flex flex-col",
@@ -149,7 +149,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {images.map((_, i) => (
               <button
                 key={i}
-                className={classNames(
+                className={cn(
                   "rounded-full w-2 h-2 border border-white shadow transition-colors",
                   i === currentImageIndex ? "bg-white" : "bg-white/50"
                 )}
@@ -168,9 +168,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <div className="p-4 space-y-3">
         {/* Product Name */}
         <div className="mb-3">
-          <h3 className="text-sm font-medium text-gray-900 leading-tight line-clamp-2">
-            {name}
-          </h3>
+          <Link to={`/product/${id}`}>
+            <h3 className="text-sm font-medium text-gray-900 leading-tight line-clamp-2 hover:text-blue-600 transition-colors">
+              {name}
+            </h3>
+          </Link>
         </div>
 
         {/* Bottom Row - All Controls in One Line */}
@@ -230,7 +232,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             }}
           >
             <Heart
-              className={classNames(
+              className={cn(
                 "h-2.5 w-2.5 transition-colors",
                 isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
               )}
@@ -244,7 +246,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               className="bg-blue-600 hover:bg-blue-700 text-white h-5 w-5 p-0 relative"
               onClick={(e) => {
                 e.stopPropagation();
-                console.log(`Added ${quantity} of ${name} to cart`);
+                addItem({
+                  id,
+                  name,
+                  images,
+                  originalPrice,
+                  salePrice,
+                  discount
+                }, quantity);
               }}
             >
               <ShoppingCart className="h-2.5 w-2.5" />

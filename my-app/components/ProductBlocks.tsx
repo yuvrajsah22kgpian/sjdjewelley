@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 type Product = {
   id: number;
@@ -12,25 +13,25 @@ const products: Product[] = [
     id: 1,
     name: "Diamond Ring",
     price: "$499",
-    image: "/images/product1.jpg", // replace with your test image
+    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop",
   },
   {
     id: 2,
     name: "Gold Necklace",
     price: "$799",
-    image: "/images/product2.jpg",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop",
   },
   {
     id: 3,
     name: "Silver Bracelet",
     price: "$199",
-    image: "/images/product3.jpg",
+    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop",
   },
   {
     id: 4,
     name: "Earrings Set",
     price: "$299",
-    image: "/images/product4.jpg",
+    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop",
   },
 ];
 

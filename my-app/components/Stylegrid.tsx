@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 type StyleCategory = {
   id: number;
   name: string;
@@ -9,14 +11,14 @@ const styleCategories: StyleCategory[] = [
   { 
     id: 1, 
     name: "Men", 
-    image: "/images/men-style.jpg",
-    href: "/shop/men"
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face",
+    href: "/style/men"
   },
   { 
     id: 2, 
     name: "Women", 
-    image: "/images/women-style.jpg",
-    href: "/shop/women"
+    image: "https://images.unsplash.com/photo-1586297098710-0382a496c814?w=400&h=400&fit=crop&crop=face",
+    href: "/style/women"
   },
 ];
 
@@ -26,9 +28,9 @@ export default function ShopByStyle(){
       <h2 className="text-center text-2xl font-semibold mb-6">SHOP BY STYLE</h2>
       <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
         {styleCategories.map((cat) => (
-          <a
+          <Link
             key={cat.id}
-            href={cat.href}
+            to={cat.href}
             className="group relative border rounded-xl overflow-hidden shadow hover:shadow-lg transition w-64"
           >
             {/* Category Image */}
@@ -43,7 +45,7 @@ export default function ShopByStyle(){
                 {cat.name}
               </span>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

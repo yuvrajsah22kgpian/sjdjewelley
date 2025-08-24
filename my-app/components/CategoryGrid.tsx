@@ -1,10 +1,36 @@
+import { Link } from "react-router-dom";
+
 const categories = [
-  { name: "Rings", href: "/categories/rings", image: "/images/ring.jpeg" },
-  { name: "Pendants", href: "/categories/pendants", image: "/images/pendants.jpg" },
-  { name: "Bangles/Bracelets", href: "/categories/bangles", image: "/images/bangles.jpg" },
-  { name: "Necklaces", href: "/categories/necklaces", image: "/images/necklaces.jpg" },
-  { name: "Earrings", href: "/categories/earrings", image: "/images/earrings.jpg" },
-  { name: "Accessories", href: "/categories/accessories", image: "/images/accessories.jpg" },
+  { 
+    name: "Rings", 
+    href: "/categories/rings", 
+    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop" 
+  },
+  { 
+    name: "Pendants", 
+    href: "/categories/pendants", 
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop&crop=top" 
+  },
+  { 
+    name: "Bangles/Bracelets", 
+    href: "/categories/bangles_bracelets", 
+    image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop" 
+  },
+  { 
+    name: "Necklaces", 
+    href: "/categories/necklaces", 
+    image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop&crop=center" 
+  },
+  { 
+    name: "Earrings", 
+    href: "/categories/earrings", 
+    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&h=400&fit=crop" 
+  },
+  { 
+    name: "Accessories", 
+    href: "/categories/accessories", 
+    image: "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=400&h=400&fit=crop&crop=center" 
+  },
 ];
 
 export default function CategoryGrid() {
@@ -15,9 +41,9 @@ export default function CategoryGrid() {
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
         {categories.map((cat) => (
-          <a
+          <Link
             key={cat.name}
-            href={cat.href}
+            to={cat.href}
             className="group relative border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
           >
             {/* Category Image */}
@@ -32,7 +58,7 @@ export default function CategoryGrid() {
                 {cat.name}
               </span>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </section>

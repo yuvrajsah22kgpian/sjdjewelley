@@ -5,6 +5,8 @@ import { ProductCard } from "./Card";
 import {FilterSidebar}  from "./FilterSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
+import { searchProducts } from "../src/data/products";
+import { useSearchStore } from "../src/store/store";
 
 interface ProductImage {
   src: string;
@@ -59,185 +61,31 @@ interface ApiParams {
 
 const PAGE_BUTTONS_AROUND = 2; // How many page numbers to show around current
 
-// Demo Products Data
-const DEMO_PRODUCTS: Product[] = [
-  {
-    id: "1",
-    name: "Classic Diamond Solitaire Ring",
-    images: [{ src: "/api/placeholder/300/300", alt: "Diamond Solitaire Ring" }],
-    originalPrice: 2500,
-    salePrice: 2000,
-    discount: 20
-  },
-  {
-    id: "2", 
-    name: "Pearl Drop Earrings",
-    images: [{ src: "/api/placeholder/300/300", alt: "Pearl Drop Earrings" }],
-    originalPrice: 850,
-    salePrice: 680,
-    discount: 20
-  },
-  {
-    id: "3",
-    name: "Gold Tennis Bracelet",
-    images: [{ src: "/api/placeholder/300/300", alt: "Gold Tennis Bracelet" }],
-    originalPrice: 1200,
-    salePrice: 960,
-    discount: 20
-  },
-  {
-    id: "4",
-    name: "Emerald Cut Diamond Necklace",
-    images: [{ src: "/api/placeholder/300/300", alt: "Emerald Cut Diamond Necklace" }],
-    originalPrice: 3200,
-    salePrice: 2560,
-    discount: 20
-  },
-  {
-    id: "5",
-    name: "Vintage Ruby Ring",
-    images: [{ src: "/api/placeholder/300/300", alt: "Vintage Ruby Ring" }],
-    originalPrice: 1800,
-    salePrice: 1440,
-    discount: 20
-  },
-  {
-    id: "6",
-    name: "Sapphire Stud Earrings",
-    images: [{ src: "/api/placeholder/300/300", alt: "Sapphire Stud Earrings" }],
-    originalPrice: 950,
-    salePrice: 760,
-    discount: 20
-  },
-  {
-    id: "7",
-    name: "Diamond Eternity Band",
-    images: [{ src: "/api/placeholder/300/300", alt: "Diamond Eternity Band" }],
-    originalPrice: 2200,
-    salePrice: 1760,
-    discount: 20
-  },
-  {
-    id: "8",
-    name: "White Gold Chain Necklace",
-    images: [{ src: "/api/placeholder/300/300", alt: "White Gold Chain Necklace" }],
-    originalPrice: 650,
-    salePrice: 520,
-    discount: 20
-  },
-  {
-    id: "9",
-    name: "Tanzanite Cocktail Ring",
-    images: [{ src: "/api/placeholder/300/300", alt: "Tanzanite Cocktail Ring" }],
-    originalPrice: 2800,
-    salePrice: 2240,
-    discount: 20
-  },
-  {
-    id: "10",
-    name: "Diamond Halo Pendant",
-    images: [{ src: "/api/placeholder/300/300", alt: "Diamond Halo Pendant" }],
-    originalPrice: 1500,
-    salePrice: 1200,
-    discount: 20
-  },
-  {
-    id: "11",
-    name: "Rose Gold Bangle",
-    images: [{ src: "/api/placeholder/300/300", alt: "Rose Gold Bangle" }],
-    originalPrice: 750,
-    salePrice: 600,
-    discount: 20
-  },
-  {
-    id: "12",
-    name: "Aquamarine Drop Earrings",
-    images: [{ src: "/api/placeholder/300/300", alt: "Aquamarine Drop Earrings" }],
-    originalPrice: 1100,
-    salePrice: 880,
-    discount: 20
-  },
-  {
-    id: "13",
-    name: "Princess Cut Diamond Ring",
-    images: [{ src: "/api/placeholder/300/300", alt: "Princess Cut Diamond Ring" }],
-    originalPrice: 3500,
-    salePrice: 2800,
-    discount: 20
-  },
-  {
-    id: "14",
-    name: "Platinum Wedding Band",
-    images: [{ src: "/api/placeholder/300/300", alt: "Platinum Wedding Band" }],
-    originalPrice: 900,
-    salePrice: 720,
-    discount: 20
-  },
-  {
-    id: "15",
-    name: "Garnet Statement Necklace",
-    images: [{ src: "/api/placeholder/300/300", alt: "Garnet Statement Necklace" }],
-    originalPrice: 1300,
-    salePrice: 1040,
-    discount: 20
-  },
-  {
-    id: "16",
-    name: "Diamond Tennis Necklace",
-    images: [{ src: "/api/placeholder/300/300", alt: "Diamond Tennis Necklace" }],
-    originalPrice: 4200,
-    salePrice: 3360,
-    discount: 20
-  },
-  {
-    id: "17",
-    name: "Citrine Chandelier Earrings",
-    images: [{ src: "/api/placeholder/300/300", alt: "Citrine Chandelier Earrings" }],
-    originalPrice: 850,
-    salePrice: 680,
-    discount: 20
-  },
-  {
-    id: "18",
-    name: "Art Deco Diamond Brooch",
-    images: [{ src: "/api/placeholder/300/300", alt: "Art Deco Diamond Brooch" }],
-    originalPrice: 2600,
-    salePrice: 2080,
-    discount: 20
-  },
-  {
-    id: "19",
-    name: "Moonstone Stackable Rings",
-    images: [{ src: "/api/placeholder/300/300", alt: "Moonstone Stackable Rings" }],
-    originalPrice: 600,
-    salePrice: 480,
-    discount: 20
-  },
-  {
-    id: "20",
-    name: "Opal Pendant Necklace",
-    images: [{ src: "/api/placeholder/300/300", alt: "Opal Pendant Necklace" }],
-    originalPrice: 1050,
-    salePrice: 840,
-    discount: 20
-  }
-];
+// Remove the demo products data as we'll use the real data from products.ts
 
 // Mock API function with proper typing
 const mockFetchProductsApi = async (params: ApiParams): Promise<ApiResponse> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 500));
   
-  const { page } = params;
+  const { page, filters } = params;
   const pageSize = 12;
+  
+  // Extract search query from filters
+  const searchQuery = (filters as any).searchQuery || '';
+  const cleanFilters = { ...filters };
+  delete (cleanFilters as any).searchQuery;
+  
+  // Use the searchProducts function from our data
+  const filteredProducts = searchProducts(searchQuery, cleanFilters);
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   
-  const paginatedProducts = DEMO_PRODUCTS.slice(startIndex, endIndex);
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
   
   return {
     data: paginatedProducts,
-    total: DEMO_PRODUCTS.length
+    total: filteredProducts.length
   };
 };
 
@@ -255,17 +103,20 @@ export default function ProductsPage({
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const { searchQuery } = useSearchStore();
 
-  // Fetch products when page or filters change
+  // Fetch products when page, filters, or search query change
   useEffect(() => {
     setLoading(true);
-    mockFetchProductsApi({ page: currentPage, filters })
+    // Use search query in the API call
+    const searchFilters = searchQuery ? { ...filters, searchQuery } : filters;
+    mockFetchProductsApi({ page: currentPage, filters: searchFilters })
       .then(res => {
         setProducts(res.data);
         setTotalProducts(res.total);
       })
       .finally(() => setLoading(false));
-  }, [currentPage, filters]);
+  }, [currentPage, filters, searchQuery]);
 
   const totalPages = Math.ceil(totalProducts / pageSize);
 
