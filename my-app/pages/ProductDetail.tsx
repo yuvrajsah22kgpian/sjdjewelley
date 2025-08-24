@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star, Truck, Shield, RotateCcw } from 'lucide-react'
 import { useCartStore } from '../src/store/store'
@@ -12,10 +12,53 @@ export default function ProductDetail() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const [product, setProduct] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const product = getProductById(id || '')
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setError('Product ID is required')
+        setLoading(false)
+        return
+      }
 
-  if (!product) {
+      try {
+        setLoading(true)
+        const productData = await getProductById(id)
+        if (productData) {
+          setProduct(productData)
+        } else {
+          setError('Product not found')
+        }
+      } catch (err) {
+        setError('Failed to load product')
+        console.error('Error fetching product:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProduct()
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading product...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Header />
@@ -118,7 +161,7 @@ export default function ProductDetail() {
               {/* Thumbnail Images */}
               {product.images.length > 1 && (
                 <div className="flex space-x-2">
-                  {product.images.map((image, index) => (
+                  {product.images.map((image: any, index: number) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImageIndex(index)}
@@ -296,7 +339,7 @@ export default function ProductDetail() {
               <h2 className="text-2xl font-bold text-gray-900 mb-8">Specifications</h2>
               <div className="bg-white rounded-lg border p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(product.specifications).map(([key, value]) => (
+                  {Object.entries(product.specifications).map(([key, value]: [string, any]) => (
                     <div key={key} className="flex justify-between py-2 border-b border-gray-100">
                       <span className="font-medium text-gray-700">{key}</span>
                       <span className="text-gray-900">{value}</span>

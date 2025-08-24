@@ -24,24 +24,24 @@ const materialCategories= [
 
 export default function ShopByMaterial() {
   return (
-    <section className="mb-12">
-      <h2 className="text-center text-2xl font-semibold mb-6">SHOP BY MATERIAL</h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+    <section className="mb-6">
+      <h2 className="text-center text-xl font-semibold mb-4">SHOP BY MATERIAL</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {materialCategories.map((cat) => (
           <Link
             key={cat.name}
             to={cat.href}
-            className="group relative border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+            className="group relative border rounded-lg overflow-hidden shadow hover:shadow-lg transition"
           >
             {/* Category Image */}
             <img
               src={cat.image}
               alt={cat.name}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+              className="w-full h-32 object-cover group-hover:scale-105 transition-transform"
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <span className="text-white text-lg font-medium text-center px-2">
+              <span className="text-white text-sm font-medium text-center px-2">
                 {cat.name}
               </span>
             </div>

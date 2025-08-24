@@ -24,24 +24,24 @@ const styleCategories: StyleCategory[] = [
 
 export default function ShopByStyle(){
   return (
-    <section className="mb-12">
-      <h2 className="text-center text-2xl font-semibold mb-6">SHOP BY STYLE</h2>
-      <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto">
+    <section className="mb-6">
+      <h2 className="text-center text-xl font-semibold mb-4">SHOP BY STYLE</h2>
+      <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto">
         {styleCategories.map((cat) => (
           <Link
             key={cat.id}
             to={cat.href}
-            className="group relative border rounded-xl overflow-hidden shadow hover:shadow-lg transition w-64"
+            className="group relative border rounded-lg overflow-hidden shadow hover:shadow-lg transition w-48"
           >
             {/* Category Image */}
             <img
               src={cat.image}
               alt={cat.name}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+              className="w-full h-32 object-cover group-hover:scale-105 transition-transform"
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <span className="text-white text-lg font-medium text-center px-2">
+              <span className="text-white text-sm font-medium text-center px-2">
                 {cat.name}
               </span>
             </div>

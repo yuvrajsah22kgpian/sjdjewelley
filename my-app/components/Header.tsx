@@ -48,13 +48,13 @@ export default function Header() {
     // SSR fallback
     return (
       <header className="w-full bg-white shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
           <div className="flex items-center">
             <Link to="/">
               <img
                 src="/images/SJD_logo.png"
                 alt="Logo"
-                className="h-8 sm:h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-6 sm:h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
               />
             </Link>
           </div>
@@ -68,14 +68,14 @@ export default function Header() {
   return (
     <>
       <header className="w-full bg-white shadow-md relative z-40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
           {/* Left - Logo */}
           <div className="flex items-center">
             <Link to="/">
               <img
                 src="images/SJD_logo.png"
                 alt="SJD Jewelry Wholesale Logo"
-                className="h-8 sm:h-10 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+                className="h-6 sm:h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
               />
             </Link>
           </div>

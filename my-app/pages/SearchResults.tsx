@@ -12,18 +12,29 @@ export default function SearchResults() {
   const { searchQuery, setSearchQuery } = useSearchStore()
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const query = searchParams.get('q') || searchQuery
 
   useEffect(() => {
     if (query) {
       setLoading(true)
-      // Simulate API delay
-      setTimeout(() => {
-        const results = searchProducts(query, {})
-        setProducts(results)
-        setLoading(false)
-      }, 500)
+      setError(null)
+      
+      searchProducts(query, {})
+        .then(results => {
+          setProducts(results)
+        })
+        .catch(err => {
+          console.error('Error searching products:', err)
+          setError('Failed to search products')
+          setProducts([])
+        })
+        .finally(() => {
+          setLoading(false)
+        })
+    } else {
+      setProducts([])
     }
   }, [query])
 
@@ -61,6 +72,13 @@ export default function SearchResults() {
               )}
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600">{error}</p>
+            </div>
+          )}
 
           {/* Results */}
           {loading ? (

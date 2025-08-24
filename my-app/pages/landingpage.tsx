@@ -4,19 +4,53 @@ import Footer from "../components/Footer";
 import ShopByMaterial from "../components/MaterialGrid";
 import ShopByStyle from "../components/Stylegrid";
 import CategoryGrid from "../components/CategoryGrid";
+import FilteredProducts from "../components/FilteredProducts";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 // Lazy load FilterPanel (like Next.js dynamic import)
 const FilterPanel = lazy(() => import("../components/FilterPanel"));
 
+interface SelectedFilters {
+  [key: string]: string[];
+}
 
 export default function landingpage() {
   const [showFilters, setShowFilters] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
+    material: [],
+    category: [],
+    metalType: [],
+    metalTones: [],
+    diamondWeight: [],
+    priceRange: []
+  });
+  const [showFilteredProducts, setShowFilteredProducts] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Handle filter changes from FilterPanel
+  const handleFilterChange = (newFilters: SelectedFilters) => {
+    setSelectedFilters(newFilters);
+    // Show filtered products if any filters are selected
+    const hasFilters = Object.values(newFilters).some(filters => filters.length > 0);
+    setShowFilteredProducts(hasFilters);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedFilters({
+      material: [],
+      category: [],
+      metalType: [],
+      metalTones: [],
+      diamondWeight: [],
+      priceRange: []
+    });
+    setShowFilteredProducts(false);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -24,7 +58,7 @@ export default function landingpage() {
       <Header />
 
       {/* Mobile Filter Toggle Button */}
-      <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3">
+      <div className="md:hidden bg-white border-b border-gray-200 px-4 py-2">
         <button
           onClick={() => setShowFilters(!showFilters)}
           className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
@@ -61,7 +95,11 @@ export default function landingpage() {
                   </div>
                 }
               >
-                <FilterPanel />
+                <FilterPanel 
+                  selectedFilters={selectedFilters}
+                  onFilterChange={handleFilterChange}
+                  onClearFilters={clearFilters}
+                />
               </Suspense>
             </div>
           </div>
@@ -71,7 +109,7 @@ export default function landingpage() {
       {/* Main Content */}
       <main className="flex flex-col md:flex-row flex-1 bg-[#92bce03b]">
         {/* Desktop Filters */}
-        <div className="w-full max-w-xs mx-auto bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden mt-1 h-fit md:sticky md:top-6">
+        <div className="w-full max-w-xs mx-auto bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden h-fit md:sticky md:top-6">
           <Suspense
             fallback={
               <div className="animate-pulse space-y-3 p-6">
@@ -81,30 +119,37 @@ export default function landingpage() {
               </div>
             }
           >
-            <FilterPanel />
+            <FilterPanel 
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearFilters}
+            />
           </Suspense>
         </div>
 
         {/* Main Content Area */}
         <div className="flex-1">
-          <section className="text-center px-4 py-8 md:px-6 md:py-12">
-            <h1 className="text-4xl font-medium mb-2.5 text-gray-700 font-playfair">
-              SJD JEWELRY WHOLESALE
-            </h1>
-            <p className="mt-4 md:mt-6 text-[12px] text-[#666] max-w-sm sm:max-w-xl md:max-w-2xl mx-auto px-2">
-              Discover our exquisite collection of fine jewelry. Choose your
-              preferred way to explore our premium selection.
-            </p>
-          </section>
-          <div className="px-4 md:px-8 pb-8">
-            <ShopByMaterial />
-          </div>
-          <div className="px-4 md:px-8 pb-8">
-            <ShopByStyle />
-          </div>
-          <div className="px-4 md:px-8 pb-8">
-            <CategoryGrid />
-          </div>
+          {/* Filtered Products Section */}
+          {showFilteredProducts && (
+            <div className="px-4 md:px-6 pb-3">
+              <FilteredProducts filters={selectedFilters} onClearFilters={clearFilters} />
+            </div>
+          )}
+
+          {/* Category Sections - Only show when no filters are active */}
+          {!showFilteredProducts && (
+            <>
+              <div className="px-4 md:px-6 pb-3">
+                <ShopByMaterial />
+              </div>
+              <div className="px-4 md:px-6 pb-3">
+                <ShopByStyle />
+              </div>
+              <div className="px-4 md:px-6 pb-3">
+                <CategoryGrid />
+              </div>
+            </>
+          )}
         </div>
       </main>
       <Footer />

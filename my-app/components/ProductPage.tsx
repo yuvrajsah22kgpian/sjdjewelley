@@ -61,32 +61,35 @@ interface ApiParams {
 
 const PAGE_BUTTONS_AROUND = 2; // How many page numbers to show around current
 
-// Remove the demo products data as we'll use the real data from products.ts
-
-// Mock API function with proper typing
-const mockFetchProductsApi = async (params: ApiParams): Promise<ApiResponse> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
+// Real API function using the backend
+const fetchProductsApi = async (params: ApiParams): Promise<ApiResponse> => {
   const { page, filters } = params;
   const pageSize = 12;
   
-  // Extract search query from filters
-  const searchQuery = (filters as any).searchQuery || '';
-  const cleanFilters = { ...filters };
-  delete (cleanFilters as any).searchQuery;
-  
-  // Use the searchProducts function from our data
-  const filteredProducts = searchProducts(searchQuery, cleanFilters);
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  
-  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
-  
-  return {
-    data: paginatedProducts,
-    total: filteredProducts.length
-  };
+  try {
+    // Extract search query from filters
+    const searchQuery = (filters as any).searchQuery || '';
+    const cleanFilters = { ...filters };
+    delete (cleanFilters as any).searchQuery;
+    
+    // Use the searchProducts function from our API service
+    const filteredProducts = await searchProducts(searchQuery, cleanFilters);
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+    
+    return {
+      data: paginatedProducts,
+      total: filteredProducts.length
+    };
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return {
+      data: [],
+      total: 0
+    };
+  }
 };
 
 export default function ProductsPage({
@@ -110,10 +113,15 @@ export default function ProductsPage({
     setLoading(true);
     // Use search query in the API call
     const searchFilters = searchQuery ? { ...filters, searchQuery } : filters;
-    mockFetchProductsApi({ page: currentPage, filters: searchFilters })
+    fetchProductsApi({ page: currentPage, filters: searchFilters })
       .then(res => {
         setProducts(res.data);
         setTotalProducts(res.total);
+      })
+      .catch(error => {
+        console.error('Error fetching products:', error);
+        setProducts([]);
+        setTotalProducts(0);
       })
       .finally(() => setLoading(false));
   }, [currentPage, filters, searchQuery]);
@@ -296,6 +304,5 @@ export default function ProductsPage({
     </div>
   );
 }
-// update the code
 
 

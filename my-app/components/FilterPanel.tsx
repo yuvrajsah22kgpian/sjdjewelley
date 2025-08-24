@@ -36,6 +36,12 @@ interface SelectedFilters {
   [key: string]: string[];
 }
 
+interface FilterPanelProps {
+  selectedFilters?: SelectedFilters;
+  onFilterChange?: (filters: SelectedFilters) => void;
+  onClearFilters?: () => void;
+}
+
 // FilterSection Component
 const FilterSection: React.FC<FilterSectionProps> = ({ 
   title, 
@@ -102,10 +108,14 @@ const FilterSection: React.FC<FilterSectionProps> = ({
 };
 
 // Main FilterPanel Component
-const FilterPanel: React.FC = () => {
+const FilterPanel: React.FC<FilterPanelProps> = ({ 
+  selectedFilters: externalFilters,
+  onFilterChange,
+  onClearFilters 
+}) => {
   const [mounted, setMounted] = useState(false);
   const [openSections, setOpenSections] = useState<FilterState>({});
-  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
+  const [internalFilters, setInternalFilters] = useState<SelectedFilters>({
     material: [],
     category: [],
     metalType: [],
@@ -113,6 +123,9 @@ const FilterPanel: React.FC = () => {
     diamondWeight: [],
     priceRange: []
   });
+
+  // Use external filters if provided, otherwise use internal state
+  const selectedFilters = externalFilters || internalFilters;
 
   useEffect(() => {
     setMounted(true);
@@ -128,39 +141,53 @@ const FilterPanel: React.FC = () => {
 
   // Handle option selection/deselection
   const handleOptionChange = (sectionKey: string, value: string, checked: boolean): void => {
-    setSelectedFilters(prev => {
-      const currentSection = prev[sectionKey] || [];
-      
-      if (checked) {
-        return {
-          ...prev,
-          [sectionKey]: [...currentSection, value]
-        };
-      } else {
-        return {
-          ...prev,
-          [sectionKey]: currentSection.filter(item => item !== value)
-        };
-      }
-    });
+    const newFilters = {
+      ...selectedFilters,
+      [sectionKey]: checked 
+        ? [...(selectedFilters[sectionKey] || []), value]
+        : (selectedFilters[sectionKey] || []).filter(item => item !== value)
+    };
+
+    // Update internal state if no external control
+    if (!externalFilters) {
+      setInternalFilters(newFilters);
+    }
+
+    // Notify parent component
+    if (onFilterChange) {
+      onFilterChange(newFilters);
+    }
   };
 
   // Clear all filters
   const clearAllFilters = (): void => {
-    setSelectedFilters({
+    const emptyFilters = {
       material: [],
       category: [],
       metalType: [],
       metalTones: [],
       diamondWeight: [],
       priceRange: []
-    });
+    };
+
+    // Update internal state if no external control
+    if (!externalFilters) {
+      setInternalFilters(emptyFilters);
+    }
+
+    // Notify parent component
+    if (onClearFilters) {
+      onClearFilters();
+    } else if (onFilterChange) {
+      onFilterChange(emptyFilters);
+    }
   };
 
-  // Apply filters
+  // Apply filters (for backward compatibility)
   const applyFilters = (): void => {
     console.log('Applied Filters:', selectedFilters);
-    // Add your filter application logic here
+    // This function is kept for backward compatibility
+    // The filters are now applied automatically when changed
   };
 
   // Get total count of selected filters
@@ -178,6 +205,9 @@ const FilterPanel: React.FC = () => {
         { label: "Gold", value: "gold" },
         { label: "Silver", value: "silver" },
         { label: "Diamond", value: "diamond" },
+        { label: "Natural Diamond", value: "natural_diamond" },
+        { label: "Lab Grown Diamond", value: "lab_grown_diamond" },
+        { label: "Pearl", value: "pearl" },
       ]
     },
     {
@@ -186,12 +216,11 @@ const FilterPanel: React.FC = () => {
       icon: Squares2X2Icon,
       options: [
         { label: "Rings", value: "rings" },
-        { label: "Bands", value: "bands" },
         { label: "Earrings", value: "earrings" },
         { label: "Necklaces", value: "necklaces" },
         { label: "Pendants", value: "pendants" },
-        { label: "Bangles", value: "bangles" },
-        { label: "Bracelets", value: "bracelets" },
+        { label: "Bangles/Bracelets", value: "bangles_bracelets" },
+        { label: "Accessories", value: "accessories" },
       ]
     },
     {
@@ -201,7 +230,9 @@ const FilterPanel: React.FC = () => {
       options: [
         { label: "10k", value: "10k" },
         { label: "14k", value: "14k" },
-        { label: "Silver", value: "silver" },
+        { label: "18k", value: "18k" },
+        { label: "Sterling Silver", value: "sterling_silver" },
+        { label: "Platinum", value: "platinum" },
       ]
     },
     {
@@ -209,12 +240,11 @@ const FilterPanel: React.FC = () => {
       title: 'Metal Tones',
       icon: SwatchIcon,
       options: [
-        { label: "Yellow Gold", value: "yellow-gold" },
-        { label: "Two Tone", value: "two-tone" },
-        { label: "Rose Gold", value: "rose-gold" },
-        { label: "White Gold", value: "white-gold" },
-        { label: "Pink Two Tone", value: "pink-two-tone" },
-        { label: "Dark Polish", value: "dark-polish" },
+        { label: "Yellow Gold", value: "yellow_gold" },
+        { label: "White Gold", value: "white_gold" },
+        { label: "Rose Gold", value: "rose_gold" },
+        { label: "Two Tone", value: "two_tone" },
+        { label: "Silver", value: "silver" },
       ]
     },
     {
@@ -240,7 +270,8 @@ const FilterPanel: React.FC = () => {
         { label: "Under $100", value: "under-100" },
         { label: "$100 - $500", value: "100-500" },
         { label: "$500 - $1000", value: "500-1000" },
-        { label: "Over $1000", value: "over-1000" },
+        { label: "$1000 - $2500", value: "1000-2500" },
+        { label: "Over $2500", value: "over-2500" },
       ]
     }
   ];

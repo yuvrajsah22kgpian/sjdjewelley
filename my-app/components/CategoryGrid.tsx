@@ -35,26 +35,26 @@ const categories = [
 
 export default function CategoryGrid() {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12">
-      <h2 className="text-2xl font-semibold text-center mb-8">
+    <section className="max-w-7xl mx-auto px-4 py-6">
+      <h2 className="text-xl font-semibold text-center mb-4">
         SHOP BY CATEGORIES
       </h2>
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {categories.map((cat) => (
           <Link
             key={cat.name}
             to={cat.href}
-            className="group relative border rounded-xl overflow-hidden shadow hover:shadow-lg transition"
+            className="group relative border rounded-lg overflow-hidden shadow hover:shadow-lg transition"
           >
             {/* Category Image */}
             <img
               src={cat.image}
               alt={cat.name}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+              className="w-full h-32 object-cover group-hover:scale-105 transition-transform"
             />
             {/* Overlay */}
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-              <span className="text-white text-lg font-medium">
+              <span className="text-white text-sm font-medium">
                 {cat.name}
               </span>
             </div>

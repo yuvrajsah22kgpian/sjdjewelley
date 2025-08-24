@@ -1,0 +1,57 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --primary-gold: #D4AF37;
+  --primary-gold-dark: #B8941F;
+  --secondary-gold: #F4E4BC;
+  --accent-gold: #FFD700;
+  --text-dark: #1F2937;
+  --text-light: #6B7280;
+  --bg-cream: #FDFBF7;
+  --bg-white: #FFFFFF;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-cream);
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-gold);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-gold-dark);
+}
+
+/* Elegant focus states */
+.focus-gold:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: var(--primary-gold);
+  ring-offset: 2px;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-gold {
+  background: linear-gradient(135deg, var(--primary-gold) 0%, var(--accent-gold) 100%);
+}
+
+.bg-gradient-cream {
+  background: linear-gradient(135deg, var(--bg-cream) 0%, var(--bg-white) 100%);
+}
