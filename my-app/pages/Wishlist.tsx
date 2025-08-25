@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, ShoppingCart, ArrowLeft, Trash2 } from 'lucide-react'
 import { useCartStore } from '../src/store/store'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
-import { ProductCard } from '../components/Card'
+import Header from '../src/components/Header'
+import Footer from '../src/components/Footer'
+import { ProductCard } from '../src/components/Card'
 
 export default function Wishlist() {
   const { addItem } = useCartStore()

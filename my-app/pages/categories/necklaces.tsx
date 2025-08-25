@@ -1,4 +1,4 @@
-import ProductsPage from "../../components/ProductPage"; 
+import ProductsPage from "../../src/components/ProductPage"; 
 
 export default function Necklaces() {
   return (

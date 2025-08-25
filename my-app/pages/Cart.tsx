@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag } from 'lucide-react'
 import { useCartStore } from '../src/store/store'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Header from '../src/components/Header'
+import Footer from '../src/components/Footer'
 
 export default function Cart() {
   const { items, removeItem, updateQuantity, getTotalItems, getTotalPrice, clearCart } = useCartStore()

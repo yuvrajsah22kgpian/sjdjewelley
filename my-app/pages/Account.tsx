@@ -16,8 +16,8 @@ import {
   Calendar,
   DollarSign
 } from 'lucide-react'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Header from '../src/components/Header'
+import Footer from '../src/components/Footer'
 
 export default function Account() {
   const { user, isAuthenticated, logout } = useAuthStore()

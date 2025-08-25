@@ -3,9 +3,9 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import { useSearchStore } from '../src/store/store'
 import { searchProducts } from '../src/data/products'
-import { ProductCard } from '../components/Card'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import { ProductCard } from '../src/components/Card'
+import Header from '../src/components/Header'
+import Footer from '../src/components/Footer'
 
 export default function SearchResults() {
   const [searchParams] = useSearchParams()

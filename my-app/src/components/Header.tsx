@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Heart, ShoppingCart, User, Phone, Menu, X } from "lucide-react";
-import { useCartStore, useAuthStore, useSearchStore } from "../src/store/store";
+import { useCartStore, useAuthStore, useSearchStore } from "../store/store";
+import Image from "./Image";
+import logo from "../assets/images/SJD_logo.png"; 
+
 
 export default function Header() {
   const { searchQuery, setSearchQuery } = useSearchStore();
@@ -51,8 +54,8 @@ export default function Header() {
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
           <div className="flex items-center">
             <Link to="/">
-              <img
-                src="/images/SJD_logo.png"
+              <Image
+                src={logo}
                 alt="Logo"
                 className="h-6 sm:h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
               />
@@ -72,10 +75,10 @@ export default function Header() {
           {/* Left - Logo */}
           <div className="flex items-center">
             <Link to="/">
-              <img
-                src="images/SJD_logo.png"
-                alt="SJD Jewelry Wholesale Logo"
-                className="h-6 sm:h-8 w-auto object-contain cursor-pointer hover:opacity-80 transition-opacity"
+               <Image
+                src={logo}
+                alt="Logo"
+                className="h-6 sm:h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
               />
             </Link>
           </div>

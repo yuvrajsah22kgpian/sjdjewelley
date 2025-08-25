@@ -1,14 +1,14 @@
 import { useState, useEffect, Suspense, lazy } from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import ShopByMaterial from "../components/MaterialGrid";
-import ShopByStyle from "../components/Stylegrid";
-import CategoryGrid from "../components/CategoryGrid";
-import FilteredProducts from "../components/FilteredProducts";
+import Header from "../src/components/Header";
+import Footer from "../src/components/Footer";
+import ShopByMaterial from "../src/components/MaterialGrid";
+import ShopByStyle from "../src/components/Stylegrid";
+import CategoryGrid from "../src/components/CategoryGrid";
+import FilteredProducts from "../src/components/FilteredProducts";
 import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
 // Lazy load FilterPanel (like Next.js dynamic import)
-const FilterPanel = lazy(() => import("../components/FilterPanel"));
+const FilterPanel = lazy(() => import("../src/components/FilterPanel"));
 
 interface SelectedFilters {
   [key: string]: string[];

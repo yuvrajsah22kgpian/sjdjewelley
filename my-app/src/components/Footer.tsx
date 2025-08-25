@@ -1,10 +1,13 @@
+import Image from "./Image";
+import logo from "../assets/images/SJD_logo.png"; 
+
 export default function Footer() {
   return (
     <footer className="w-full bg-white border-t">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between font-playfair">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <img src="images/SJD_logo.png" alt="Logo" className="h-6 w-auto" />
+          <Image src={logo} alt="Logo" className="h-6 w-auto" />
         </div>
 
         {/* Links */}

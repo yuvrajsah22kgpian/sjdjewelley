@@ -8,8 +8,8 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { useCartStore } from "../src/store/store";
-import { cn } from "../src/utils/cn";
+import { useCartStore } from "../store/store";
+import { cn } from "../utils/cn";
 
 // Accessible, stylish icon button
 interface IconButtonProps {

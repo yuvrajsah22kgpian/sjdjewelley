@@ -5,8 +5,8 @@ import { ProductCard } from "./Card";
 import {FilterSidebar}  from "./FilterSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
-import { searchProducts } from "../src/data/products";
-import { useSearchStore } from "../src/store/store";
+import { searchProducts } from "../data/products";
+import { useSearchStore } from "../store/store";
 
 interface ProductImage {
   src: string;
@@ -64,7 +64,7 @@ const PAGE_BUTTONS_AROUND = 2; // How many page numbers to show around current
 // Real API function using the backend
 const fetchProductsApi = async (params: ApiParams): Promise<ApiResponse> => {
   const { page, filters } = params;
-  const pageSize = 12;
+  const pageSize = 8;
   
   try {
     // Extract search query from filters

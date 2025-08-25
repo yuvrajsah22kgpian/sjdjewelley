@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../../src/store/store'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
+import Header from '../../src/components/Header'
+import Footer from '../../src/components/Footer'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),

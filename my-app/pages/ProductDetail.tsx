@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, Heart, ShoppingCart, Star, Truck, Shield, RotateCcw } from 'lucide-react'
 import { useCartStore } from '../src/store/store'
 import { getProductById } from '../src/data/products'
-import Header from '../components/Header'
-import Footer from '../components/Footer'
+import Header from '../src/components/Header'
+import Footer from '../src/components/Footer'
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>()

@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../../src/store/store'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
+import Header from '../../src/components/Header'
+import Footer from '../../src/components/Footer'
 
 const signupSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
