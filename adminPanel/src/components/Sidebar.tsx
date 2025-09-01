@@ -23,7 +23,7 @@ export default function Sidebar() {
         {/* Header */}
         <div className="flex items-center justify-center h-20 px-6 border-b border-gold-200 bg-gradient-gold">
           <div className="text-center">
-            <h1 className="text-2xl font-playfair font-bold text-white">SJ Jewelry</h1>
+            <h1 className="text-2xl font-playfair font-bold text-white">SJD Jewelry</h1>
             <p className="text-xs text-gold-100 font-medium">Admin Panel</p>
           </div>
         </div>

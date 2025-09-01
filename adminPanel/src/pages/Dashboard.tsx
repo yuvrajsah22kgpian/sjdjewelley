@@ -89,7 +89,7 @@ export default function Dashboard() {
     <div className="p-8 bg-gradient-cream min-h-screen">
       <div className="mb-8">
         <h1 className="text-4xl font-playfair font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600 font-inter">Welcome to the SJ Jewelry admin panel</p>
+        <p className="text-gray-600 font-inter">Welcome to the SJD Jewelry admin panel</p>
       </div>
 
       {/* Stats Grid */}

@@ -51,7 +51,7 @@ export default function Login() {
               <Gem className="h-8 w-8 text-white" />
             </div>
             <h1 className="text-3xl font-playfair font-bold text-gray-900 mb-2">
-              SJ Jewelry Admin
+              SJD Jewelry Admin
             </h1>
             <p className="text-gray-600 font-inter">
               Sign in to access the admin panel
