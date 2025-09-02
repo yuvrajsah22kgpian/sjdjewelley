@@ -1,3 +1,4 @@
+// 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, Heart, ShoppingCart, User, Phone, Menu, X } from "lucide-react";
@@ -341,3 +342,4 @@ export default function Header() {
     </>
   );
 }
+// 
