@@ -348,13 +348,13 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         </div>
 
         {/* Debug info - remove in production */}
-        {process.env.NODE_ENV === 'development' && getTotalSelectedCount() > 0 && (
+        {/* {import.meta.env.NODE_ENV === 'development' && getTotalSelectedCount() > 0 && (
           <div className="mt-4 p-3 bg-gray-100 rounded-lg">
             <p className="text-xs font-mono text-gray-600">
               Selected: {JSON.stringify(selectedFilters, null, 2)}
             </p>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

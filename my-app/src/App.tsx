@@ -33,6 +33,14 @@ import SearchResults from "../pages/SearchResults";
 import About from "../pages/about-us";
 import OurStory from "../pages/story"; 
 import Faq from "../pages/FAQ";
+import DisclaimerPage from "../pages/Disclaimer";
+import SJDJobApplicationForm from "../pages/careers";
+import ContactPage from "../pages/contact";
+
+// Policy pages
+import ShippingPolicyPage from "../pages/ShippingPolicyPage";
+import ReturnPolicyPage from "../pages/ReturnPolicyPage";
+import PrivacyPolicyPage from "../pages/PrivacyPage";
 
 export default function App() {
   return (
@@ -71,6 +79,14 @@ export default function App() {
       <Route path="/about-us" element={<About />} />
       <Route path="/story" element={<OurStory />} />
       <Route path="/Faqs" element={<Faq />} />
+      <Route path="/disclaimer" element={<DisclaimerPage />} />
+      <Route path="/careers" element={<SJDJobApplicationForm />} />
+      <Route path="/contact" element={<ContactPage />} />
+
+      {/* Policy pages */}
+      <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+      <Route path="/return-policy" element={<ReturnPolicyPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
     </Routes>
   );
 }
