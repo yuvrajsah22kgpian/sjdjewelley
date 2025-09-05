@@ -3,7 +3,12 @@ from sqlalchemy import and_, or_
 from typing import List, Optional
 import models
 import schemas
-from auth import get_password_hash
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 # User CRUD operations
 def get_user(db: Session, user_id: int):
@@ -240,3 +245,67 @@ def remove_from_wishlist(db: Session, user_id: int, product_id: int):
     db.delete(db_wishlist_item)
     db.commit()
     return True
+
+# Account Application CRUD operations
+def generate_account_number(db: Session) -> str:
+    """Generate a unique account number"""
+    import random
+    import string
+    
+    while True:
+        # Generate a 8-digit account number starting with 'SJD'
+        account_number = f"SJD{''.join(random.choices(string.digits, k=8))}"
+        
+        # Check if it already exists
+        existing = db.query(models.AccountApplication).filter(
+            models.AccountApplication.account_number == account_number
+        ).first()
+        
+        if not existing:
+            return account_number
+
+def create_account_application(db: Session, application: schemas.AccountApplicationCreate):
+    # Hash the password
+    hashed_password = get_password_hash(application.password)
+    
+    # Generate unique account number
+    account_number = generate_account_number(db)
+    
+    # Create the application data dict, excluding password
+    application_data = application.dict()
+    application_data.pop('password')
+    application_data['hashed_password'] = hashed_password
+    application_data['account_number'] = account_number
+    
+    db_application = models.AccountApplication(**application_data)
+    db.add(db_application)
+    db.commit()
+    db.refresh(db_application)
+    return db_application
+
+def get_account_application(db: Session, application_id: int):
+    return db.query(models.AccountApplication).filter(models.AccountApplication.id == application_id).first()
+
+def get_account_applications(db: Session, skip: int = 0, limit: int = 100, status: Optional[str] = None):
+    query = db.query(models.AccountApplication)
+    if status:
+        query = query.filter(models.AccountApplication.status == status)
+    return query.offset(skip).limit(limit).all()
+
+def update_account_application_status(db: Session, application_id: int, status: str, reviewed_by: int, review_notes: Optional[str] = None):
+    db_application = db.query(models.AccountApplication).filter(models.AccountApplication.id == application_id).first()
+    if not db_application:
+        return None
+    
+    db_application.status = status
+    db_application.reviewed_by = reviewed_by
+    db_application.reviewed_at = func.now()
+    if review_notes:
+        db_application.review_notes = review_notes
+    
+    db.commit()
+    db.refresh(db_application)
+    return db_application
+
+def get_account_application_by_email(db: Session, email: str):
+    return db.query(models.AccountApplication).filter(models.AccountApplication.email == email).first()

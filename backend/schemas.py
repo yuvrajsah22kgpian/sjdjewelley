@@ -162,3 +162,184 @@ class ProductSearch(BaseModel):
     filters: Optional[ProductFilters] = None
     page: int = 1
     limit: int = 20
+
+# Account Application schemas
+class AccountApplicationBase(BaseModel):
+    # Authentication
+    email: EmailStr
+    password: str
+    account_number: Optional[str] = None
+    
+    # Account Type
+    account_type: str
+    other_account_type: Optional[str] = None
+    
+    # Company Information
+    legal_name: str
+    business_start_date: str
+    dba_trade_name: str
+    
+    # Physical Address
+    physical_address: str
+    physical_kiosk: Optional[str] = None
+    physical_city: str
+    physical_state: str
+    physical_zip_code: str
+    
+    # Contact Information
+    tel_business: str
+    fax: Optional[str] = None
+    
+    # Shipping Address
+    shipping_address: str
+    shipping_kiosk: Optional[str] = None
+    shipping_address_type: str
+    shipping_city: str
+    shipping_state: str
+    shipping_zip_code: str
+    
+    # Store Lease Information
+    store_lease_holder: Optional[str] = None
+    existing_store_annual_sales: Optional[str] = None
+    new_store_annual_sales_projected: Optional[str] = None
+    
+    # Tax Information
+    fed_tax_id: Optional[str] = None
+    resale_tax_id: Optional[str] = None
+    jbt_id: Optional[str] = None
+    dnb_number: Optional[str] = None
+    
+    # Owner Information
+    owner_first_name: Optional[str] = None
+    owner_last_name: Optional[str] = None
+    owner_ssn: Optional[str] = None
+    owner_driver_license: Optional[str] = None
+    owner_dob: Optional[str] = None
+    
+    # Owner Home Address
+    owner_home_address: Optional[str] = None
+    owner_home_kiosk: Optional[str] = None
+    owner_home_city: Optional[str] = None
+    owner_home_state: Optional[str] = None
+    owner_home_zip_code: Optional[str] = None
+    owner_tel_home: Optional[str] = None
+    owner_cell: Optional[str] = None
+    
+    
+    # Authorized Buyers
+    authorized_buyer_1: Optional[str] = None
+    authorized_buyer_2: Optional[str] = None
+    authorized_buyer_3: Optional[str] = None
+    authorized_buyer_4: Optional[str] = None
+    
+    # Sales Tax Certificate
+    certificate_number: Optional[str] = None
+    certificate_state: Optional[str] = None
+    
+    # Signatures
+    corporate_owner_print_name: Optional[str] = None
+    corporate_owner_title: Optional[str] = None
+    partner_print_name: Optional[str] = None
+    partner_title: Optional[str] = None
+    
+    # Document Uploads (file paths)
+    driver_license_file_path: Optional[str] = None
+    sales_tax_permit_file_path: Optional[str] = None
+    lease_agreement_file_path: Optional[str] = None
+
+class AccountApplicationCreate(AccountApplicationBase):
+    pass
+
+class AccountApplicationResponse(BaseModel):
+    # Authentication
+    email: EmailStr
+    account_number: str
+    
+    # Account Type
+    account_type: str
+    other_account_type: Optional[str] = None
+    
+    # Company Information
+    legal_name: str
+    business_start_date: str
+    dba_trade_name: str
+    
+    # Physical Address
+    physical_address: str
+    physical_kiosk: Optional[str] = None
+    physical_city: str
+    physical_state: str
+    physical_zip_code: str
+    
+    # Contact Information
+    tel_business: str
+    fax: Optional[str] = None
+    
+    # Shipping Address
+    shipping_address: str
+    shipping_kiosk: Optional[str] = None
+    shipping_address_type: str
+    shipping_city: str
+    shipping_state: str
+    shipping_zip_code: str
+    
+    # Store Lease Information
+    store_lease_holder: Optional[str] = None
+    existing_store_annual_sales: Optional[str] = None
+    new_store_annual_sales_projected: Optional[str] = None
+    
+    # Tax Information
+    fed_tax_id: Optional[str] = None
+    resale_tax_id: Optional[str] = None
+    jbt_id: Optional[str] = None
+    dnb_number: Optional[str] = None
+    
+    # Owner Information
+    owner_first_name: Optional[str] = None
+    owner_last_name: Optional[str] = None
+    owner_ssn: Optional[str] = None
+    owner_driver_license: Optional[str] = None
+    owner_dob: Optional[str] = None
+    
+    # Owner Home Address
+    owner_home_address: Optional[str] = None
+    owner_home_kiosk: Optional[str] = None
+    owner_home_city: Optional[str] = None
+    owner_home_state: Optional[str] = None
+    owner_home_zip_code: Optional[str] = None
+    owner_tel_home: Optional[str] = None
+    owner_cell: Optional[str] = None
+    
+    
+    # Authorized Buyers
+    authorized_buyer_1: Optional[str] = None
+    authorized_buyer_2: Optional[str] = None
+    authorized_buyer_3: Optional[str] = None
+    authorized_buyer_4: Optional[str] = None
+    
+    # Sales Tax Certificate
+    certificate_number: Optional[str] = None
+    certificate_state: Optional[str] = None
+    
+    # Signatures
+    corporate_owner_print_name: Optional[str] = None
+    corporate_owner_title: Optional[str] = None
+    partner_print_name: Optional[str] = None
+    partner_title: Optional[str] = None
+    
+    # Document Uploads (file paths)
+    driver_license_file_path: Optional[str] = None
+    sales_tax_permit_file_path: Optional[str] = None
+    lease_agreement_file_path: Optional[str] = None
+
+class AccountApplication(AccountApplicationResponse):
+    id: int
+    status: str = "pending"  # pending, approved, rejected, under_review
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    reviewed_by: Optional[int] = None
+    reviewed_at: Optional[datetime] = None
+    review_notes: Optional[str] = None
+
+    class Config:
+        from_attributes = True
