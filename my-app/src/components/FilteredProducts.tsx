@@ -2,6 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, Eye, X } from "lucide-react";
+import { useAuthStore, useCartStore, useWishlistStore } from "../store/store";
+import { apiService } from "../services/api";
+import { cn } from "../utils/cn";
 
 interface Product {
   id: number;
@@ -39,10 +42,77 @@ export default function FilteredProducts({ filters, onClearFilters }: FilteredPr
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [wishlistStates, setWishlistStates] = useState<{[key: number]: {loading: boolean, animation: boolean}}>({});
+  const [cartStates, setCartStates] = useState<{[key: number]: {loading: boolean, animation: boolean}}>({});
+
+  const { addItem } = useCartStore();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchFilteredProducts();
   }, [filters]);
+
+  const handleWishlistToggle = async (productId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      window.location.href = '/login';
+      return;
+    }
+
+    setWishlistStates(prev => ({...prev, [productId]: {loading: true, animation: true}}));
+    
+    try {
+      const isWishlisted = isInWishlist(productId.toString());
+      if (isWishlisted) {
+        await apiService.removeFromWishlist(productId);
+        removeFromWishlist(productId.toString());
+      } else {
+        await apiService.addToWishlist(productId);
+        const product = products.find(p => p.id === productId);
+        if (product) {
+          addToWishlist({
+            id: productId.toString(),
+            name: product.name,
+            images: product.images || [],
+            originalPrice: product.original_price,
+            salePrice: product.sale_price,
+            discount: product.discount
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update wishlist:', error);
+      alert('Failed to update wishlist. Please try again.');
+    } finally {
+      setWishlistStates(prev => ({...prev, [productId]: {loading: false, animation: false}}));
+      setTimeout(() => {
+        setWishlistStates(prev => ({...prev, [productId]: {loading: false, animation: false}}));
+      }, 600);
+    }
+  };
+
+  const handleAddToCart = (productId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCartStates(prev => ({...prev, [productId]: {loading: true, animation: true}}));
+    
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      addItem({
+        id: productId.toString(),
+        name: product.name,
+        images: product.images || [],
+        originalPrice: product.original_price,
+        salePrice: product.sale_price,
+        discount: product.discount
+      }, 1);
+    }
+    
+    setTimeout(() => {
+      setCartStates(prev => ({...prev, [productId]: {loading: false, animation: false}}));
+    }, 600);
+  };
 
   const fetchFilteredProducts = async () => {
     setLoading(true);
@@ -321,12 +391,70 @@ export default function FilteredProducts({ filters, onClearFilters }: FilteredPr
                   >
                     View Details
                   </Link>
-                  <button 
-                    className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"
-                    disabled={!product.in_stock}
-                  >
-                    <ShoppingCart className="h-4 w-4" />
-                  </button>
+                  
+                  {/* Wishlist Button */}
+                  <div className="relative">
+                    <button 
+                      className={cn(
+                        "p-2 rounded-lg transition-all duration-300",
+                        isInWishlist(product.id.toString()) 
+                          ? "bg-red-50 text-red-500 hover:bg-red-100" 
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                        wishlistStates[product.id]?.animation && "scale-110 bg-red-50"
+                      )}
+                      onClick={(e) => handleWishlistToggle(product.id, e)}
+                      disabled={wishlistStates[product.id]?.loading}
+                    >
+                      <Heart 
+                        className={cn(
+                          "h-4 w-4 transition-all duration-300",
+                          isInWishlist(product.id.toString()) && "fill-current",
+                          wishlistStates[product.id]?.loading && "animate-pulse",
+                          wishlistStates[product.id]?.animation && "scale-125"
+                        )} 
+                      />
+                    </button>
+                    {/* Success animation overlay */}
+                    {wishlistStates[product.id]?.animation && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className={cn(
+                          "text-white text-xs px-2 py-1 rounded-full animate-bounce",
+                          isInWishlist(product.id.toString()) ? "bg-red-500" : "bg-gray-500"
+                        )}>
+                          {isInWishlist(product.id.toString()) ? "♥ Added!" : "♡ Removed!"}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Cart Button */}
+                  <div className="relative">
+                    <button 
+                      className={cn(
+                        "p-2 rounded-lg transition-all duration-300",
+                        "bg-blue-100 text-blue-600 hover:bg-blue-200",
+                        cartStates[product.id]?.animation && "scale-110 bg-green-100",
+                        cartStates[product.id]?.loading && "animate-pulse"
+                      )}
+                      onClick={(e) => handleAddToCart(product.id, e)}
+                      disabled={!product.in_stock || cartStates[product.id]?.loading}
+                    >
+                      <ShoppingCart 
+                        className={cn(
+                          "h-4 w-4 transition-all duration-300",
+                          cartStates[product.id]?.animation && "scale-125"
+                        )} 
+                      />
+                    </button>
+                    {/* Success animation overlay */}
+                    {cartStates[product.id]?.animation && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-bounce">
+                          ✓ Added!
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

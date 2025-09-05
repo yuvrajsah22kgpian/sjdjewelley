@@ -1,18 +1,17 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, Mail, Lock, ArrowLeft, User, Hash } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react'
 import { useAuthStore } from '../../src/store/store'
+import { apiService } from '../../src/services/api'
 import Header from '../../src/components/Header'
 import Footer from '../../src/components/Footer'
 
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  accountNumber: z.string().min(1, 'Account number is required'),
-  username: z.string().min(1, 'Username is required'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>
@@ -37,21 +36,22 @@ export default function Login() {
     setError('')
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Call the real API
+      await apiService.login(data.email, data.password)
       
-      // Mock user data - in real app, this would come from API
+      // Get user info from token or make another API call
+      // For now, we'll create a basic user object
       const user = {
         id: '1',
         email: data.email,
-        name: 'John Doe',
-        phone: '+1-234-567-8900',
+        name: 'User', // This will be updated when we get user details
+        phone: '',
         address: {
-          street: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10001',
-          country: 'USA'
+          street: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          country: ''
         }
       }
 
@@ -97,40 +97,6 @@ export default function Login() {
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Account Number */}
-              <div>
-                <label htmlFor="accountNumber" className="block text-sm font-medium text-gray-700 mb-2">
-                  Account Number <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    {...register('accountNumber')}
-                    type="text"
-                    id="accountNumber"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="Enter your account number"
-                  />
-                </div>
-              </div>
-
-              {/* Username */}
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                  Username <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    {...register('username')}
-                    type="text"
-                    id="username"
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="Enter your username"
-                  />
-                </div>
-              </div>
-
               {/* Email Field */}
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

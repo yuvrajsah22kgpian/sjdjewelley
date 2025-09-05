@@ -55,6 +55,14 @@ interface CartState {
   getTotalPrice: () => number
 }
 
+interface WishlistState {
+  items: Product[]
+  addItem: (product: Product) => void
+  removeItem: (productId: string) => void
+  clearWishlist: () => void
+  isInWishlist: (productId: string) => boolean
+}
+
 interface SearchState {
   searchQuery: string
   setSearchQuery: (query: string) => void
@@ -133,6 +141,37 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
+    }
+  )
+)
+
+export const useWishlistStore = create<WishlistState>()(
+  persist(
+    (set, get) => ({
+      items: [],
+      addItem: (product) => {
+        set((state) => {
+          if (state.items.find(item => item.id === product.id)) {
+            return state; // Already in wishlist
+          }
+          return {
+            items: [...state.items, product]
+          }
+        })
+      },
+      removeItem: (productId) => {
+        set((state) => ({
+          items: state.items.filter(item => item.id !== productId)
+        }))
+      },
+      clearWishlist: () => set({ items: [] }),
+      isInWishlist: (productId) => {
+        const { items } = get()
+        return items.some(item => item.id === productId)
+      },
+    }),
+    {
+      name: 'wishlist-storage',
     }
   )
 )

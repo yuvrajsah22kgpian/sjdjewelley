@@ -1,54 +1,78 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Heart, ShoppingCart, ArrowLeft, Trash2 } from 'lucide-react'
-import { useCartStore } from '../src/store/store'
+import { useCartStore, useAuthStore } from '../src/store/store'
 import Header from '../src/components/Header'
 import Footer from '../src/components/Footer'
 import { ProductCard } from '../src/components/Card'
+import apiService from '../src/services/api'
 
 export default function Wishlist() {
   const { addItem } = useCartStore()
-  const [wishlistItems, setWishlistItems] = useState([
-    {
-      id: "1",
-      name: "Classic Diamond Solitaire Ring",
-      images: [
-        { src: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop", alt: "Diamond Solitaire Ring" }
-      ],
-      originalPrice: 2500,
-      salePrice: 2000,
-      discount: 20,
-      category: "rings",
-      material: "natural_diamond"
-    },
-    {
-      id: "4",
-      name: "Emerald Cut Diamond Necklace",
-      images: [
-        { src: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop", alt: "Emerald Cut Diamond Necklace" }
-      ],
-      originalPrice: 3200,
-      salePrice: 2560,
-      discount: 20,
-      category: "necklaces",
-      material: "natural_diamond"
-    },
-    {
-      id: "9",
-      name: "Tanzanite Cocktail Ring",
-      images: [
-        { src: "https://images.unsplash.com/photo-1603561591411-07134e71a2a9?w=400&h=400&fit=crop&crop=face", alt: "Tanzanite Cocktail Ring" }
-      ],
-      originalPrice: 2800,
-      salePrice: 2240,
-      discount: 20,
-      category: "rings",
-      material: "tanzanite"
-    }
-  ])
+  const { isAuthenticated } = useAuthStore()
+  const [wishlistItems, setWishlistItems] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const removeFromWishlist = (productId: string) => {
-    setWishlistItems(items => items.filter(item => item.id !== productId))
+  // Load wishlist from backend
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadWishlist()
+    } else {
+      setLoading(false)
+    }
+  }, [isAuthenticated])
+
+  const loadWishlist = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await apiService.getWishlist()
+      if (response.data) {
+        // Transform backend data to frontend format
+        const transformedItems = response.data.map((item: any) => ({
+          id: item.product.id.toString(),
+          name: item.product.name,
+          images: item.product.images?.map((img: any) => ({
+            src: img.src,
+            alt: img.alt || item.product.name
+          })) || [{ src: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop", alt: item.product.name }],
+          originalPrice: item.product.original_price,
+          salePrice: item.product.sale_price,
+          discount: item.product.discount,
+          category: item.product.category,
+          material: item.product.material,
+          gemstone: item.product.gemstone,
+          occasion: item.product.occasion,
+          inStock: item.product.in_stock,
+          newArrivals: item.product.new_arrivals,
+          certified: item.product.certified,
+          customizable: item.product.customizable,
+          description: item.product.description,
+          specifications: item.product.specifications
+        }))
+        setWishlistItems(transformedItems)
+      }
+    } catch (error) {
+      console.error('Failed to load wishlist:', error)
+      setError('Failed to load wishlist. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const removeFromWishlist = async (productId: string) => {
+    try {
+      const response = await apiService.removeFromWishlist(parseInt(productId))
+      if (response.data || response.error === undefined) {
+        setWishlistItems(items => items.filter(item => item.id !== productId))
+      } else {
+        throw new Error(response.error || 'Failed to remove item')
+      }
+    } catch (error) {
+      console.error('Failed to remove from wishlist:', error)
+      alert('Failed to remove item from wishlist. Please try again.')
+    }
   }
 
   const moveToCart = (product: any) => {
@@ -56,6 +80,76 @@ export default function Wishlist() {
     removeFromWishlist(product.id)
   }
 
+  // Show login prompt if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        
+        <main className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="text-center">
+            <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Please log in to view your wishlist</h1>
+            <p className="text-gray-600 mb-8">Sign in to save items to your wishlist and access them from any device.</p>
+            <Link
+              to="/login"
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Sign In
+            </Link>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    )
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        
+        <main className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <h1 className="text-xl font-semibold text-gray-900 mb-2">Loading your wishlist...</h1>
+            <p className="text-gray-600">Please wait while we fetch your saved items.</p>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    )
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Header />
+        
+        <main className="flex-1 flex items-center justify-center px-4 py-8">
+          <div className="text-center">
+            <Heart className="h-16 w-16 text-red-400 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+            <p className="text-gray-600 mb-8">{error}</p>
+            <button
+              onClick={loadWishlist}
+              className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </main>
+
+        <Footer />
+      </div>
+    )
+  }
+
+  // Show empty wishlist
   if (wishlistItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -130,9 +224,23 @@ export default function Wishlist() {
           {/* Actions */}
           <div className="mt-8 flex justify-center">
             <button
-              onClick={() => {
-                wishlistItems.forEach(item => addItem(item, 1))
-                setWishlistItems([])
+              onClick={async () => {
+                try {
+                  // Add all items to cart
+                  wishlistItems.forEach(item => addItem(item, 1))
+                  
+                  // Remove all items from wishlist in backend
+                  const removePromises = wishlistItems.map(item => 
+                    apiService.removeFromWishlist(parseInt(item.id))
+                  )
+                  await Promise.all(removePromises)
+                  
+                  // Clear local state
+                  setWishlistItems([])
+                } catch (error) {
+                  console.error('Failed to move all items to cart:', error)
+                  alert('Some items could not be moved to cart. Please try again.')
+                }
               }}
               className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center"
             >

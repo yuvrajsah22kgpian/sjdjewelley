@@ -38,10 +38,10 @@ const ContactPage: React.FC = () => {
 
   // SJD Gold & Diamond Inc. contact information
   const contactInfo: ContactInfo = {
-    companyName: "SJD Gold & Diamond Inc.",
-    address: "The Jewelry Exchange Building, 7500 Bellaire Blvd Floor Suite # 317, Houston, TX 77036, United States",
-    phone: "+1 (713) 555-0123", // Update with your actual phone number
-    email: "info@sjdgolddiamond.com", // Update with your actual email
+    companyName: "SJD GOLD & DIAMONDS",
+    address: "7500 BELLAIRE BLVD., SUITE # 317, HOUSTON, TX - 77036",
+    phone: "(713) 773-2786",
+    email: "sales@sjdgnd.com",
     hours: "Mon-Fri: 10am to 7pm",
     coordinates: {
       lat: 29.6918, // Houston coordinates
@@ -99,7 +99,10 @@ const ContactPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">Contact {contactInfo.companyName}</h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-2">
+              MANUFACTURERS & WHOLESELLERS OF 10K, 14K, 18K GOLD & DIAMONDS, JEWELRY
+            </p>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
               We'd love to hear from you. Get in touch with our jewelry experts for any questions about our gold, diamonds, and fine jewelry collection.
             </p>
           </div>
@@ -251,13 +254,16 @@ const ContactPage: React.FC = () => {
                 <div className="flex items-start">
                   <Phone className="h-6 w-6 text-yellow-600 mt-1 mr-4 flex-shrink-0" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Phone & Fax</h3>
                     <a 
                       href={`tel:${contactInfo.phone}`}
-                      className="text-gray-600 hover:text-yellow-600 transition-colors"
+                      className="text-gray-600 hover:text-yellow-600 transition-colors block"
                     >
-                      {contactInfo.phone}
+                      PH # {contactInfo.phone}
                     </a>
+                    <p className="text-gray-600">
+                      FAX # (713) 773-3786
+                    </p>
                   </div>
                 </div>
 
@@ -269,7 +275,7 @@ const ContactPage: React.FC = () => {
                       href={`mailto:${contactInfo.email}`}
                       className="text-gray-600 hover:text-yellow-600 transition-colors"
                     >
-                      {contactInfo.email}
+                      E-mail : {contactInfo.email}
                     </a>
                   </div>
                 </div>

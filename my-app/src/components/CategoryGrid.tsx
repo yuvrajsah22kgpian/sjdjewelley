@@ -103,11 +103,11 @@ const categories = [
 export default function CategoryGrid() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-6">
-      <h2 className="text-xl font-semibold text-center mb-6">
+      <h2 className="text-xl font-semibold text-center mb-8">
         SHOP BY CATEGORIES
       </h2>
       <div className="flex justify-center">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-fit">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-fit">
           {categories.map((cat) => (
             <Link
               key={cat.name}

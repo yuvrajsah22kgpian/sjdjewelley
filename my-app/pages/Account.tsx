@@ -1,54 +1,91 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../src/store/store'
+import { useAuthStore, useWishlistStore, useCartStore } from '../src/store/store'
 import { 
   User, 
   ShoppingBag, 
   Heart, 
   Settings, 
   LogOut, 
-  Edit3, 
   MapPin, 
   Phone, 
   Mail,
   ArrowLeft,
   Package,
-  Calendar,
-  DollarSign
+  ShoppingCart,
+  Trash2
 } from 'lucide-react'
 import Header from '../src/components/Header'
 import Footer from '../src/components/Footer'
+import { ProductCard } from '../src/components/Card'
+import apiService from '../src/services/api'
 
 export default function Account() {
   const { user, isAuthenticated, logout } = useAuthStore()
+  const { items: wishlistItems, removeItem: removeFromWishlist } = useWishlistStore()
+  const { addItem: addToCart } = useCartStore()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('profile')
-
-  // Mock order history
-  const orders = [
-    {
-      id: 'ORD-001',
-      date: '2024-01-15',
-      status: 'Delivered',
-      total: 2560,
-      items: [
-        { name: 'Emerald Cut Diamond Necklace', quantity: 1, price: 2560 }
-      ]
-    },
-    {
-      id: 'ORD-002',
-      date: '2024-01-10',
-      status: 'Shipped',
-      total: 1200,
-      items: [
-        { name: 'Diamond Halo Pendant', quantity: 1, price: 1200 }
-      ]
+  const [orders, setOrders] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [profileData, setProfileData] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    address: {
+      street: user?.address?.street || '',
+      city: user?.address?.city || '',
+      state: user?.address?.state || '',
+      zipCode: user?.address?.zipCode || '',
+      country: user?.address?.country || ''
     }
-  ]
+  })
+
+  // Load orders on component mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadOrders()
+    }
+  }, [isAuthenticated])
+
+  const loadOrders = async () => {
+    setLoading(true)
+    try {
+      const response = await apiService.getOrders()
+      if (response.data) {
+        setOrders(response.data as any[])
+      }
+    } catch (error) {
+      console.error('Failed to load orders:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     logout()
+    localStorage.removeItem('auth-token')
     navigate('/')
+  }
+
+  const handleProfileUpdate = async () => {
+    setLoading(true)
+    try {
+      // Here you would typically call an API to update user profile
+      console.log('Updating profile:', profileData)
+      // For now, just show success message
+      alert('Profile updated successfully!')
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+      alert('Failed to update profile. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const moveToCart = (product: any) => {
+    addToCart(product, 1)
+    removeFromWishlist(product.id)
   }
 
   if (!isAuthenticated || !user) {
@@ -148,7 +185,8 @@ export default function Account() {
                           <User className="h-5 w-5 text-gray-400 mr-3" />
                           <input
                             type="text"
-                            defaultValue={user.name}
+                            value={profileData.name}
+                            onChange={(e) => setProfileData({...profileData, name: e.target.value})}
                             className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
@@ -162,7 +200,8 @@ export default function Account() {
                           <Mail className="h-5 w-5 text-gray-400 mr-3" />
                           <input
                             type="email"
-                            defaultValue={user.email}
+                            value={profileData.email}
+                            onChange={(e) => setProfileData({...profileData, email: e.target.value})}
                             className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
@@ -176,7 +215,8 @@ export default function Account() {
                           <Phone className="h-5 w-5 text-gray-400 mr-3" />
                           <input
                             type="tel"
-                            defaultValue={user.phone || ''}
+                            value={profileData.phone}
+                            onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
                             className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                         </div>
@@ -193,32 +233,52 @@ export default function Account() {
                           <input
                             type="text"
                             placeholder="Street Address"
-                            defaultValue={user.address?.street || ''}
+                            value={profileData.address.street}
+                            onChange={(e) => setProfileData({
+                              ...profileData, 
+                              address: {...profileData.address, street: e.target.value}
+                            })}
                             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                             <input
                               type="text"
                               placeholder="City"
-                              defaultValue={user.address?.city || ''}
+                              value={profileData.address.city}
+                              onChange={(e) => setProfileData({
+                                ...profileData, 
+                                address: {...profileData.address, city: e.target.value}
+                              })}
                               className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                             <input
                               type="text"
                               placeholder="State"
-                              defaultValue={user.address?.state || ''}
+                              value={profileData.address.state}
+                              onChange={(e) => setProfileData({
+                                ...profileData, 
+                                address: {...profileData.address, state: e.target.value}
+                              })}
                               className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                             <input
                               type="text"
                               placeholder="ZIP Code"
-                              defaultValue={user.address?.zipCode || ''}
+                              value={profileData.address.zipCode}
+                              onChange={(e) => setProfileData({
+                                ...profileData, 
+                                address: {...profileData.address, zipCode: e.target.value}
+                              })}
                               className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                             <input
                               type="text"
                               placeholder="Country"
-                              defaultValue={user.address?.country || ''}
+                              value={profileData.address.country}
+                              onChange={(e) => setProfileData({
+                                ...profileData, 
+                                address: {...profileData.address, country: e.target.value}
+                              })}
                               className="border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                           </div>
@@ -227,8 +287,12 @@ export default function Account() {
                     </div>
 
                     <div className="flex justify-end">
-                      <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
-                        Save Changes
+                      <button 
+                        onClick={handleProfileUpdate}
+                        disabled={loading}
+                        className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {loading ? 'Saving...' : 'Save Changes'}
                       </button>
                     </div>
                   </div>
@@ -242,47 +306,68 @@ export default function Account() {
                     <h2 className="text-lg font-semibold text-gray-900">Order History</h2>
                   </div>
                   
-                  <div className="divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <div key={order.id} className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h3 className="text-lg font-medium text-gray-900">Order {order.id}</h3>
-                            <p className="text-sm text-gray-500">
-                              Placed on {new Date(order.date).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-lg font-semibold text-gray-900">
-                              ${order.total.toLocaleString()}
-                            </p>
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              order.status === 'Delivered' 
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {order.status}
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-3">
-                          {order.items.map((item, index) => (
-                            <div key={index} className="flex items-center justify-between text-sm">
-                              <span className="text-gray-600">{item.name}</span>
-                              <span className="text-gray-900">${item.price.toLocaleString()}</span>
+                  {loading ? (
+                    <div className="p-6 text-center">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                      <p className="mt-2 text-gray-600">Loading orders...</p>
+                    </div>
+                  ) : orders.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+                      <p className="text-gray-600 mb-6">Start shopping to see your order history here.</p>
+                      <Link
+                        to="/"
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Start Shopping
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-200">
+                      {orders.map((order) => (
+                        <div key={order.id} className="p-6">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h3 className="text-lg font-medium text-gray-900">Order #{order.id}</h3>
+                              <p className="text-sm text-gray-500">
+                                Placed on {new Date(order.created_at).toLocaleDateString()}
+                              </p>
                             </div>
-                          ))}
+                            <div className="text-right">
+                              <p className="text-lg font-semibold text-gray-900">
+                                ${order.total_amount.toLocaleString()}
+                              </p>
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                order.status === 'delivered' 
+                                  ? 'bg-green-100 text-green-800'
+                                  : order.status === 'shipped'
+                                  ? 'bg-blue-100 text-blue-800'
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-3">
+                            {order.items?.map((item: any, index: number) => (
+                              <div key={index} className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">{item.product?.name || 'Product'}</span>
+                                <span className="text-gray-900">${item.price.toLocaleString()} x {item.quantity}</span>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="mt-4 flex justify-end">
+                            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                              View Details
+                            </button>
+                          </div>
                         </div>
-                        
-                        <div className="mt-4 flex justify-end">
-                          <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                            View Details
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -291,19 +376,61 @@ export default function Account() {
                 <div className="bg-white rounded-lg shadow-sm border">
                   <div className="p-6 border-b border-gray-200">
                     <h2 className="text-lg font-semibold text-gray-900">My Wishlist</h2>
+                    <p className="text-sm text-gray-500 mt-1">{wishlistItems.length} items</p>
                   </div>
                   
-                  <div className="p-6 text-center">
-                    <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
-                    <p className="text-gray-600 mb-6">Start adding items to your wishlist to save them for later.</p>
-                    <Link
-                      to="/"
-                      className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Start Shopping
-                    </Link>
-                  </div>
+                  {wishlistItems.length === 0 ? (
+                    <div className="p-6 text-center">
+                      <Heart className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">Your wishlist is empty</h3>
+                      <p className="text-gray-600 mb-6">Start adding items to your wishlist to save them for later.</p>
+                      <Link
+                        to="/"
+                        className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        Start Shopping
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="p-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {wishlistItems.map((item) => (
+                          <div key={item.id} className="relative group">
+                            <ProductCard {...item} />
+                            <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => moveToCart(item)}
+                                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors"
+                                title="Move to cart"
+                              >
+                                <ShoppingCart className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => removeFromWishlist(item.id)}
+                                className="bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+                                title="Remove from wishlist"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="mt-6 flex justify-center">
+                        <button
+                          onClick={() => {
+                            wishlistItems.forEach(item => addToCart(item, 1))
+                            wishlistItems.forEach(item => removeFromWishlist(item.id))
+                          }}
+                          className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center"
+                        >
+                          <ShoppingCart className="h-5 w-5 mr-2" />
+                          Move All to Cart
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

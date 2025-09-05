@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   ChevronLeft,
@@ -8,8 +8,9 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { useCartStore } from "../store/store";
+import { useCartStore, useWishlistStore, useAuthStore } from "../store/store";
 import { cn } from "../utils/cn";
+import apiService from "../services/api";
 
 // Accessible, stylish icon button
 interface IconButtonProps {
@@ -91,8 +92,81 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [wishlistLoading, setWishlistLoading] = useState<boolean>(false);
+  const [wishlistAnimation, setWishlistAnimation] = useState<boolean>(false);
+  const [cartAnimation, setCartAnimation] = useState<boolean>(false);
+  const [cartLoading, setCartLoading] = useState<boolean>(false);
 
   const { addItem } = useCartStore();
+  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore();
+  const { isAuthenticated } = useAuthStore();
+
+  // Check if item is in wishlist
+  useEffect(() => {
+    setIsWishlisted(isInWishlist(id));
+  }, [id, isInWishlist]);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!isAuthenticated) {
+      // Redirect to login or show login modal
+      window.location.href = '/login';
+      return;
+    }
+
+    setWishlistLoading(true);
+    setWishlistAnimation(true);
+    
+    try {
+      if (isWishlisted) {
+        // Remove from wishlist
+        await apiService.removeFromWishlist(parseInt(id));
+        removeFromWishlist(id);
+        setIsWishlisted(false);
+      } else {
+        // Add to wishlist
+        await apiService.addToWishlist(parseInt(id));
+        addToWishlist({
+          id,
+          name,
+          images,
+          originalPrice,
+          salePrice,
+          discount
+        });
+        setIsWishlisted(true);
+      }
+    } catch (error) {
+      console.error('Failed to update wishlist:', error);
+      alert('Failed to update wishlist. Please try again.');
+    } finally {
+      setWishlistLoading(false);
+      // Reset animation after a short delay
+      setTimeout(() => setWishlistAnimation(false), 600);
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCartLoading(true);
+    setCartAnimation(true);
+    
+    addItem({
+      id,
+      name,
+      images,
+      originalPrice,
+      salePrice,
+      discount
+    }, quantity);
+    
+    // Reset animation after a short delay
+    setTimeout(() => {
+      setCartLoading(false);
+      setCartAnimation(false);
+    }, 600);
+  };
 
   return (
     <div
@@ -223,45 +297,69 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </div>
 
           {/* Wishlist Button */}
-          <IconButton
-            aria-label="Add to wishlist"
-            className="h-5 w-5 hover:bg-gray-100"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsWishlisted((w) => !w);
-            }}
-          >
-            <Heart
+          <div className="relative">
+            <IconButton
+              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
               className={cn(
-                "h-2.5 w-2.5 transition-colors",
-                isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
+                "h-5 w-5 hover:bg-gray-100 transition-all duration-300",
+                wishlistAnimation && "scale-110 bg-red-50"
               )}
-            />
-          </IconButton>
+              onClick={handleWishlistToggle}
+              disabled={wishlistLoading}
+            >
+              <Heart
+                className={cn(
+                  "h-2.5 w-2.5 transition-all duration-300",
+                  isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400",
+                  wishlistLoading && "opacity-50 animate-pulse",
+                  wishlistAnimation && "scale-125"
+                )}
+              />
+            </IconButton>
+            {/* Success animation overlay */}
+            {wishlistAnimation && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className={cn(
+                  "text-white text-xs px-2 py-1 rounded-full animate-bounce",
+                  isWishlisted ? "bg-red-500" : "bg-gray-500"
+                )}>
+                  {isWishlisted ? "♥ Added!" : "♡ Removed!"}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Add to Cart Button */}
           <div className="relative group">
             <IconButton
               aria-label="Add to cart"
-              className="bg-blue-600 hover:bg-blue-700 text-white h-5 w-5 p-0 relative"
-              onClick={(e) => {
-                e.stopPropagation();
-                addItem({
-                  id,
-                  name,
-                  images,
-                  originalPrice,
-                  salePrice,
-                  discount
-                }, quantity);
-              }}
+              className={cn(
+                "bg-blue-600 hover:bg-blue-700 text-white h-5 w-5 p-0 relative transition-all duration-300",
+                cartAnimation && "scale-110 bg-green-600",
+                cartLoading && "animate-pulse"
+              )}
+              onClick={handleAddToCart}
+              disabled={cartLoading}
             >
-              <ShoppingCart className="h-2.5 w-2.5" />
+              <ShoppingCart 
+                className={cn(
+                  "h-2.5 w-2.5 transition-all duration-300",
+                  cartAnimation && "scale-125"
+                )} 
+              />
             </IconButton>
             {/* Tooltip */}
             <span className="absolute bottom-full right-0 mb-1 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
               Add to Cart
             </span>
+            {/* Success animation overlay */}
+            {cartAnimation && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-green-500 text-white text-xs px-2 py-1 rounded-full animate-bounce">
+                  ✓ Added!
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

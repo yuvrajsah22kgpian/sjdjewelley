@@ -79,9 +79,9 @@ const materialCategories = [
 export default function ShopByMaterial() {
   return (
     <section className="mb-6">
-      <h2 className="text-center text-xl font-semibold mb-4">SHOP BY MATERIAL</h2>
+      <h2 className="text-center text-xl font-semibold mb-6">SHOP BY MATERIAL</h2>
       <div className="flex justify-center">
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-w-fit">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-fit">
           {materialCategories.map((cat) => (
             <Link
               key={cat.name}

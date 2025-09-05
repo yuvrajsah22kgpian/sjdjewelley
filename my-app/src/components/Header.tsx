@@ -80,8 +80,8 @@ export default function Header() {
 <header className="w-full sticky top-0 z-40 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 shadow-sm">
   {/* Top row: Flex layout with proper spacing */}
   <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-6 py-2">
-    {/* Left: Contact + Phone */}
-    <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+    {/* Left: Contact + Phone - Hidden on smaller screens */}
+    <div className="hidden xl:flex items-center gap-3 flex-shrink-0">
       <a
         href="tel:+1234567890"
         className="group inline-flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
@@ -94,23 +94,23 @@ export default function Header() {
       </a>
     </div>
 
-    {/* Center: Logo - absolute positioning to ensure true center */}
-    <div className="absolute left-1/2 transform -translate-x-1/2 flex-shrink-0">
+    {/* Center: Logo - responsive positioning */}
+    <div className="flex-1 flex justify-center xl:absolute xl:left-1/2 xl:transform xl:-translate-x-1/2 xl:flex-none">
       <Link to="/" className="inline-flex items-center">
         <Image
           src={logo}
           alt="Logo"
-          className="h-7 sm:h-9 w-auto cursor-pointer hover:opacity-90 transition-opacity"
+          className="h-6 sm:h-8 xl:h-9 w-auto cursor-pointer hover:opacity-90 transition-opacity"
         />
       </Link>
     </div>
 
-    {/* Right: Search then icons */}
-    <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
-      {/* Smaller Search Bar */}
+    {/* Right: Search then icons - Responsive visibility */}
+    <div className="hidden md:flex items-center gap-2 lg:gap-3 flex-shrink-0">
+      {/* Search Bar - Hidden on smaller screens */}
       <form
         onSubmit={handleSearchSubmit}
-        className="flex items-center border border-gray-200 rounded-full ps-3 pe-2 py-1.5 bg-white/80 hover:bg-white transition-colors focus-within:ring-2 focus-within:ring-blue-200"
+        className="hidden lg:flex items-center border border-gray-200 rounded-full ps-3 pe-2 py-1.5 bg-white/80 hover:bg-white transition-colors focus-within:ring-2 focus-within:ring-blue-200"
       >
         <Search size={16} className="text-gray-500" />
         <input
@@ -118,7 +118,7 @@ export default function Header() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search..."
-          className="outline-none bg-transparent px-2 py-1 w-32 xl:w-40 text-sm"
+          className="outline-none bg-transparent px-2 py-1 w-24 xl:w-40 text-sm"
           suppressHydrationWarning
           aria-label="Search"
         />
@@ -132,10 +132,10 @@ export default function Header() {
       </form>
 
       {/* Icons: Contact, Wishlist, Cart, Account */}
-      <nav className="flex items-center gap-3 text-gray-700 text-sm font-medium">
+      <nav className="flex items-center gap-2 lg:gap-3 text-gray-700 text-sm font-medium">
         <Link
           to="/contact"
-          className="hover:text-blue-600 flex items-center gap-1 transition-colors"
+          className="hidden lg:flex items-center gap-1 hover:text-blue-600 transition-colors"
         >
           <span>Contact</span>
         </Link>
@@ -143,6 +143,7 @@ export default function Header() {
         <Link
           to="/wishlist"
           className="hover:text-blue-600 flex items-center gap-1 transition-colors"
+          title="Wishlist"
         >
           <Heart size={16} />
           <span className="hidden xl:inline">WishList</span>
@@ -151,6 +152,7 @@ export default function Header() {
         <Link
           to="/cart"
           className="hover:text-blue-600 flex items-center gap-1 transition-colors relative"
+          title="Shopping Cart"
         >
           <ShoppingCart size={16} />
           <span className="hidden xl:inline">Cart</span>
@@ -163,6 +165,7 @@ export default function Header() {
           <Link
             to="/account"
             className="hover:text-blue-600 flex items-center gap-1 transition-colors"
+            title="My Account"
           >
             <User size={16} />
             <span className="hidden xl:inline">Account</span>
@@ -171,6 +174,7 @@ export default function Header() {
           <Link
             to="/login"
             className="hover:text-blue-600 flex items-center gap-1 transition-colors"
+            title="Login"
           >
             <User size={16} />
           </Link>
@@ -179,7 +183,7 @@ export default function Header() {
     </div>
 
     {/* Mobile menu button */}
-    <div className="lg:hidden flex items-center">
+    <div className="md:hidden flex items-center">
       <button
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         className="p-2 text-gray-700 hover:text-blue-600 transition-colors rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"

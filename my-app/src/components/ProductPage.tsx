@@ -1,12 +1,15 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { AdjustmentsHorizontalIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProductCard } from "./Card";
-import {FilterSidebar}  from "./FilterSidebar";
 import Header from "./Header";
 import Footer from "./Footer";
 import { searchProducts } from "../data/products";
 import { useSearchStore } from "../store/store";
+
+// Lazy load FilterPanel (like Next.js dynamic import)
+const FilterPanel = lazy(() => import("./FilterPanel"));
 
 interface ProductImage {
   src: string;
@@ -22,7 +25,11 @@ interface Product {
   discount: number;
 }
 
-// Define proper filter types
+// Define proper filter types to match FilterPanel
+interface SelectedFilters {
+  [key: string]: string[];
+}
+
 interface Filters {
   category?: string[];
   material?: string[];
@@ -101,12 +108,51 @@ export default function ProductsPage({
 }: Props) {
   // State for sidebar, pagination, filters, data
   const [showFilters, setShowFilters] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(false);
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [selectedFilters, setSelectedFilters] = useState<SelectedFilters>({
+    material: [],
+    category: [],
+    metalType: [],
+    metalTones: [],
+    diamondWeight: [],
+    priceRange: []
+  });
   const { searchQuery } = useSearchStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Handle filter changes from FilterPanel
+  const handleFilterChange = (newFilters: SelectedFilters) => {
+    setSelectedFilters(newFilters);
+    // Convert FilterPanel format to our API format
+    const apiFilters: Filters = {
+      ...filters,
+      category: newFilters.category,
+      material: newFilters.material,
+      // Add other filter mappings as needed
+    };
+    setFilters(apiFilters);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedFilters({
+      material: [],
+      category: [],
+      metalType: [],
+      metalTones: [],
+      diamondWeight: [],
+      priceRange: []
+    });
+    setFilters(defaultFilters);
+  };
 
   // Fetch products when page, filters, or search query change
   useEffect(() => {
@@ -137,89 +183,99 @@ export default function ProductsPage({
     return pages;
   };
 
-  // Check if we're on client side for responsive sidebar
-  const isClient = typeof window !== "undefined";
-  const showSidebarOnDesktop = !isClient || window.innerWidth >= 768;
-
   // Responsive grid: sm: 1, md: 2, lg: 4 cols
   return (
-    <div className="bg-gray-50 min-h-screen flex flex-col">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1">
-        {/* Hero section */}
-        <section className="bg-white shadow">
-          <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6">
-            <div className="text-sm text-gray-400 mb-3">
-              <span>Home</span> / <span>Natural Diamond Jewelry</span>
-            </div>
-            <h1 className="text-3xl font-bold mb-1">{heroLine1}</h1>
-            {heroLine2 && <p className="text-gray-500 text-base">{heroLine2}</p>}
-          </div>
-        </section>
 
-        {/* Filters, Sort, Pagination */}
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex gap-4">
-          {/* Filter button and sidebar */}
-          <div className="block md:hidden mb-2">
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-white font-medium"
-              onClick={() => setShowFilters(f => !f)}
-              type="button"
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-            </button>
-          </div>
+      {/* Mobile Filter Toggle Button */}
+      <div className="md:hidden bg-white border-b border-gray-200 px-4 py-2">
+        <button
+          onClick={() => setShowFilters(!showFilters)}
+          className="flex items-center space-x-2 text-gray-700 hover:text-blue-600 transition-colors"
+        >
+          <AdjustmentsHorizontalIcon className="h-5 w-5" />
+          <span className="font-medium">Filters</span>
+        </button>
+      </div>
 
-          {/* Sidebar: always rendered on desktop, toggled on mobile */}
-          {(showFilters || showSidebarOnDesktop) && (
-            <aside className="hidden md:block w-64 shrink-0">
-              <FilterSidebar
-                filters={filters}
-                setFilters={setFilters}
-                defaultExpandedOption={defaultExpandedFilter}
-              />
-            </aside>
-          )}
-
-          {showFilters && (
-            <aside className="md:hidden fixed inset-0 z-40 bg-black/50 flex">
-              <div className="w-72 max-w-xs bg-white shadow-lg h-full">
-                <FilterSidebar
-                  filters={filters}
-                  setFilters={setFilters}
-                  defaultExpandedOption={defaultExpandedFilter}
-                  onClose={() => setShowFilters(false)}
-                />
-              </div>
-              <div 
-                className="flex-1" 
+      {/* Mobile Filter Overlay */}
+      {mounted && showFilters && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setShowFilters(false)}
+          />
+          <div className="absolute right-0 top-0 h-full w-80 max-w-[85vw] bg-white shadow-xl">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold">Filters</h3>
+              <button
                 onClick={() => setShowFilters(false)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    setShowFilters(false);
-                  }
-                }}
-                aria-label="Close filters"
-              />
-            </aside>
-          )}
+                className="p-1 hover:bg-gray-100 rounded-full"
+              >
+                <XMarkIcon className="h-6 w-6" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto h-full">
+              <Suspense
+                fallback={
+                  <div className="animate-pulse space-y-3 p-6">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="h-12 bg-gray-200 rounded-lg"></div>
+                    ))}
+                  </div>
+                }
+              >
+                <FilterPanel 
+                  selectedFilters={selectedFilters}
+                  onFilterChange={handleFilterChange}
+                  onClearFilters={clearFilters}
+                />
+              </Suspense>
+            </div>
+          </div>
+        </div>
+      )}
 
-          {/* Main content: products grid */}
-          <div className="flex-1 min-w-0">
-            {/* Top controls (filters, pagination, sort) */}
+      {/* Main Content */}
+      <main className="flex flex-col md:flex-row flex-1 bg-[#92bce03b]">
+        {/* Desktop Filters */}
+        <div className="w-full max-w-xs mx-auto bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden h-fit md:sticky md:top-6">
+          <Suspense
+            fallback={
+              <div className="animate-pulse space-y-3 p-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="h-12 bg-gray-200 rounded-lg"></div>
+                ))}
+              </div>
+            }
+          >
+            <FilterPanel 
+              selectedFilters={selectedFilters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearFilters}
+            />
+          </Suspense>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1">
+          {/* Hero section */}
+          <section className="bg-white shadow">
+            <div className="max-w-7xl mx-auto px-2 sm:px-4 py-6">
+              <div className="text-sm text-gray-400 mb-3">
+                <span>Home</span> / <span>{heroLine1}</span>
+              </div>
+              <h1 className="text-3xl font-bold mb-1">{heroLine1}</h1>
+              {heroLine2 && <p className="text-gray-500 text-base">{heroLine2}</p>}
+            </div>
+          </section>
+
+          {/* Products Section */}
+          <div className="px-4 md:px-6 pb-3">
+            {/* Top controls (pagination, sort) */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-6">
-                <button
-                  className="flex md:hidden items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 rounded text-white font-medium"
-                  onClick={() => setShowFilters(f => !f)}
-                  type="button"
-                >
-                  <SlidersHorizontal className="h-4 w-4" />
-                  Filters
-                </button>
                 <div className="hidden md:block">
                   <span className="text-sm text-gray-600">
                     Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalProducts)} of {totalProducts} products
