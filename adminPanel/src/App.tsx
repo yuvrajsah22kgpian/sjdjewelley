@@ -1,24 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import ProductManagement from './pages/ProductManagement'
+import CustomerManagement from './pages/CustomerManagement'
+import AccountApplication from './pages/AccountApplication'
 import Sidebar from './components/Sidebar'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, loading } = useAuth()
-  
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
-  }
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
-  
-  return <>{children}</>
-}
 
 function AppContent() {
   const { isAuthenticated } = useAuth()
@@ -39,6 +27,9 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/products" element={<ProductManagement />} />
+          <Route path="/customers" element={<CustomerManagement />} />
+          <Route path="/account-applications" element={<AccountApplication />} />
+          <Route path="/account-applications/:id" element={<AccountApplication />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

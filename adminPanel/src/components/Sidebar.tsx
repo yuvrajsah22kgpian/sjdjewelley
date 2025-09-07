@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Package, LogOut, User, Settings, BarChart3 } from 'lucide-react'
+import { Home, Package, LogOut, User, Settings, BarChart3, Users, FileText } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Sidebar() {
@@ -9,6 +9,8 @@ export default function Sidebar() {
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
     { name: 'Products', href: '/products', icon: Package },
+    { name: 'Customers', href: '/customers', icon: Users },
+    { name: 'Account Applications', href: '/account-applications', icon: FileText },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Settings', href: '/settings', icon: Settings },
   ]
